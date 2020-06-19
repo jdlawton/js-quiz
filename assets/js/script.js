@@ -1,4 +1,6 @@
 var scoreTimer = 0;
+var next = 0;
+var mainEl = window.document.querySelector("#main");
 //create an array of objects, each object represents a question, the multiple choices, and the answer
 var questionArray = [
     {
@@ -150,19 +152,19 @@ var startBtnHandler = function () {
 }
 
 //function to display the next question in the array
-var nextQuestion = function(nextQuestion) {
+var nextQuestion = function() {
     
     //delete the old question
-    var mainEl = window.document.querySelector("#main");
-    console.log(mainEl);
+    //var mainEl = window.document.querySelector("#main");
+    //console.log(mainEl);
     var questionWrapperEl = window.document.querySelector("#question-wrapper");
-    console.log (questionWrapperEl);
+    //console.log (questionWrapperEl);
     mainEl.removeChild(questionWrapperEl);
 
 
     
     //create a new question-wrapper for the next question
-    var mainEl = window.document.querySelector("#main");
+    //var mainEl = window.document.querySelector("#main");
     var questionWrapperEl = document.createElement("section");
     questionWrapperEl.className = "question-wrapper";
     questionWrapperEl.id = "question-wrapper";
@@ -177,29 +179,31 @@ var nextQuestion = function(nextQuestion) {
    // }
 
     var questionTextEl = document.createElement("h2");
-    questionTextEl.textContent = questionArray[nextQuestion].text;
+    questionTextEl.textContent = questionArray[next].text;
     questionTextEl.id = "question-text";
     questionWrapperEl.appendChild(questionTextEl);
     var choiceOlEl = document.createElement("ol");
     //create answer choices in the OL
     var choice1El = document.createElement("li");
-    choice1El.textContent = questionArray[nextQuestion].choice1;
+    choice1El.textContent = questionArray[next].choice1;
     choiceOlEl.appendChild(choice1El);
 
     var choice2El = document.createElement("li");
-    choice2El.textContent = questionArray[nextQuestion].choice2;
+    choice2El.textContent = questionArray[next].choice2;
     choiceOlEl.appendChild(choice2El);
 
     var choice3El = document.createElement("li");
-    choice3El.textContent = questionArray[nextQuestion].choice3;
+    choice3El.textContent = questionArray[next].choice3;
     choiceOlEl.appendChild(choice3El);
 
     var choice4El = document.createElement("li");
-    choice4El.textContent = questionArray[nextQuestion].choice4;
+    choice4El.textContent = questionArray[next].choice4;
     choiceOlEl.appendChild(choice4El);
 
     //append the ol to the question wrapper
     questionWrapperEl.appendChild(choiceOlEl);
+    next++;
+    console.log(next);
 
     //questionWrapperEl.removeChild(window.document.querySelector("#question-text"));
 
@@ -208,3 +212,4 @@ var nextQuestion = function(nextQuestion) {
 
 //event listeners
 startBtnEl.addEventListener("click", startBtnHandler);
+mainEl.addEventListener("click", nextQuestion());
