@@ -66,3 +66,14 @@ ol {
     height: 500px;
 
 }
+
+li {
+    font-size: 20px;
+    padding: 10px 30px;
+    background: rgb(83, 21, 125);
+    color: white;
+    border-radius: 12px;
+    display: block;
+    margin: 7px 0;
+    width: 100%;
+}
