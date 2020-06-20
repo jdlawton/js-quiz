@@ -1,6 +1,7 @@
-var scoreTimer = 0;
-var next = 0;
-var mainEl = window.document.querySelector("#main");
+//global variables
+var scoreTimer = 0; //the quiz's timer, remaining time is used as player score.
+var currentQuestionIndex = -1; //keeps track of what question the quiz is currently on, used to advance through the array.
+var numCorrect = 0; //tracks the number of correct answers
 //create an array of objects, each object represents a question, the multiple choices, and the answer
 var questionArray = [
     {
@@ -9,7 +10,7 @@ var questionArray = [
         choice2: "The <head> section",
         choice3: "Both the <head> and <body> sections are acceptable",
         choice4: "The <meta> section",
-        answer: "choice3"
+        answer: "3"
     },
     {
         text: "What is the correct way to declare an array in JavaScript?",
@@ -17,7 +18,7 @@ var questionArray = [
         choice2: 'var colors = ["red", "green", "blue"]',
         choice3: 'var colors = (1:"red", 2:"green", 3:"blue")',
         choice4: 'var colors = 1 = ("red"), 2 = ("green"), 3 = ("blue")',
-        answer: "choice2"
+        answer: "2"
     },
     {
         text: "What operator is used to compare a value or variable?",
@@ -25,7 +26,7 @@ var questionArray = [
         choice2: "===",
         choice3: "#",
         choice4: "<<",
-        answer: "choice2"
+        answer: "2"
     },
     {
         text: 'How do you write "Hello World" in an alert box?',
@@ -33,7 +34,7 @@ var questionArray = [
         choice2: 'msgBox("Hello World");',
         choice3: 'msg("Hello World");',
         choice4: 'alertBox("Hello World");',
-        answer: "choice1"
+        answer: "1"
     },
     {
         text: "What operator is the AND operator?",
@@ -41,7 +42,7 @@ var questionArray = [
         choice2: "&",
         choice3: "&&",
         choice4: "||",
-        answer: "choice3"
+        answer: "3"
     },
     {
         text: "What type of event occurs when an HTML element is clicked on?",
@@ -49,7 +50,7 @@ var questionArray = [
         choice2: "onmouseclick",
         choice3: "onmouseover",
         choice4: "onclick",
-        answer: "choice4"
+        answer: "4"
     },
     {
         text: "What operator is the OR operator?",
@@ -57,7 +58,7 @@ var questionArray = [
         choice2: "&",
         choice3: "&&",
         choice4: "||",
-        answer: "choice4"
+        answer: "4"
     },
     {
         text: 'How do you call a function named "myFunction"?',
@@ -65,7 +66,7 @@ var questionArray = [
         choice2: "myFunction()",
         choice3: "call myFunction()",
         choice4: "call.myFunction()",
-        answer: "choice2"
+        answer: "2"
     },
     {
         text: "What operator is used to assign a value to a vairable?",
@@ -73,7 +74,7 @@ var questionArray = [
         choice2: "===",
         choice3: "#",
         choice4: "<<",
-        answer: "choice1"
+        answer: "1"
     },
     {
         text: "How do you write a comment in JavaScript?",
@@ -81,135 +82,175 @@ var questionArray = [
         choice2: "<!-- This is a comment -->",
         choice3: "rem This is a comment",
         choice4: "//This is a comment",
-        answer: "choice4"
+        answer: "4"
     }
 ]
 
+//elements retrieved from the HTML document, used for dynamically managing the web page contents.
+var headerWrapperEl = document.querySelector("#header-wrapper");
+var mainEl = document.querySelector("#main");
+var questionWrapperEl = document.querySelector("#question-wrapper");
 
-//dynamically create the header (view high scores link and timer)
-var headerWrapperEl = window.document.querySelector("#header-wrapper");
+/////////////////////////////END GLOBAL VARIABLES///////////////////////////////////////
 
-//create the high score link
+
+//dynamically create the view high scores link and timer in the header section
 var highScoreLinkEl = document.createElement("a");
 highScoreLinkEl.href = "#";
 highScoreLinkEl.innerHTML = "View High Scores";
 headerWrapperEl.appendChild(highScoreLinkEl);
 
-//create the timer
 var timerEl = document.createElement("p");
 timerEl.innerHTML = "Time: " + scoreTimer;
 headerWrapperEl.appendChild(timerEl);
 
 
 //dynamically create the start screen
-var questionWrapperEl = window.document.querySelector("#question-wrapper");
 
-var titleEl = document.createElement("h2");
-titleEl.innerHTML = "Coding Quiz Challenge"
-questionWrapperEl.appendChild(titleEl);
+//create the quiz title. The element the title is written to in the HTML will also server as where the questions will go
+var questionTextEl = document.createElement("h2");
+questionTextEl.textContent = "Coding Quiz Challenge";
+questionWrapperEl.appendChild(questionTextEl);
 
+//create the quiz instructions. These will be removed once the start button is clicked.
 var instructionsEl = document.createElement("p");
 instructionsEl.innerHTML = "Try to answer the following code-related questions within the time limit.<br> Keep in mind that incorrect answers will penalize your score/time by 10 seconds."
 instructionsEl.id = "instructions";
 questionWrapperEl.appendChild(instructionsEl);
 
+//the button wrapper is needed to get the style the start button correctly
 var startBtnWrapperEl = document.createElement("div");
 startBtnWrapperEl.id = "startBtn-wrapper";
 
+//the start button calls initializeQuiz function when clicked, it is removed once the quiz starts
 var startBtnEl = document.createElement("button");
 startBtnEl.className = "btn";
 startBtnEl.id = "startBtn";
 startBtnEl.innerHTML = "Start Quiz";
-
 startBtnWrapperEl.appendChild(startBtnEl);
 questionWrapperEl.appendChild(startBtnWrapperEl);
 
-//The function that triggers when the Start Quiz button is clicked
-var startBtnHandler = function () {
 
-    /*//remove the instructions from the screen
-    var questionWrapperEl = window.document.querySelector("#question-wrapper");
-    var instructionsEl = window.document.querySelector("#instructions");
+//this function prepares the quiz for running by removing the unneeded start button and instructions, then calls
+//the nextQuestion function to display the first question.
+var initializeQuiz = function () {
     questionWrapperEl.removeChild(instructionsEl);
-    
-    //remove the start button from the screen by removing the button wrapper and the button with it
-    var startBtnWrapperEl = window.document.querySelector("#startBtn-wrapper");
     questionWrapperEl.removeChild(startBtnWrapperEl);
 
-    */
+    //console.log("Inside startQuiz function.");
+    //console.log(currentQuestionIndex);
 
-    /*var mainEl = window.document.querySelector("#main");
-    console.log(mainEl);
-    var questionWrapperEl = window.document.querySelector("#question-wrapper");
-    console.log (questionWrapperEl);
-    mainEl.removeChild(questionWrapperEl);*/
+    var choiceOlEl = document.createElement("ol");
+    questionWrapperEl.appendChild(choiceOlEl);
 
-    //loop through the array of questions, checking 
-    for (var i = 0; i < questionArray.length; i++) {
-        //console.log(questionArray[i]);
-        nextQuestion(i);
-    }
+    var choice1El = document.createElement("li");
+    choice1El.setAttribute("choice-number", "1");
+    choice1El.id = "choice1";
+    //choice1El.textContent = questionArray[currentQuestionIndex].choice1;
+    choiceOlEl.appendChild(choice1El);
+
+    var choice2El = document.createElement("li");
+    choice2El.setAttribute("choice-number", "2");
+    choice2El.id = "choice2";
+    //choice2El.textContent = questionArray[currentQuestionIndex].choice2;
+    choiceOlEl.appendChild(choice2El);
+
+    var choice3El = document.createElement("li");
+    choice3El.setAttribute("choice-number", "3");
+    choice3El.id = "choice3";
+    //choice3El.textContent = questionArray[currentQuestionIndex].choice3;
+    choiceOlEl.appendChild(choice3El);
+
+    var choice4El = document.createElement("li");
+    choice4El.setAttribute("choice-number", "4");
+    choice4El.id = "choice4";
+    //choice4El.textContent = questionArray[currentQuestionIndex].choice4;
+    choiceOlEl.appendChild(choice4El);
+
+    //nextQuestion();
 }
 
 //function to display the next question in the array
 var nextQuestion = function() {
+    //debugger;
+    console.log ("index = " + currentQuestionIndex);
+    //currentQuestionIndex++;
     
-    //delete the old question
-    //var mainEl = window.document.querySelector("#main");
-    //console.log(mainEl);
-    var questionWrapperEl = window.document.querySelector("#question-wrapper");
-    //console.log (questionWrapperEl);
-    mainEl.removeChild(questionWrapperEl);
+    var targetEl = event.target;
+    var answer = targetEl.getAttribute("choice-number");
+    if (answer){
+        console.log ("Checking Answer...");
+        console.log ("Checking answer for question :" + currentQuestionIndex);
+        console.log ("You answered: " + answer);
+        console.log ("Array answer is: " + questionArray[currentQuestionIndex].answer);
+        if (answer===questionArray[currentQuestionIndex].answer){
+            console.log ("You are correct!");
+        }
+        else {
+            console.log ("You are wrong");
+        }
+    }
+    //console.log (questionArray);
+    //console.log (questionArray[currentQuestionIndex]);
+    //console.log ("The correct answer is: " + questionArray[currentQuestionIndex].answer);
+    /*if ( answer === questionArray[currentQuestionIndex].answer) {
+        console.log("You are correct");
+    } 
+    else {
+        console.log("You are wrong");
+    }*/
 
+    //checks if we have reached the end of the quiz. If not, display the next question.
+    if (currentQuestionIndex+1 < questionArray.length){
+        //debugger;
+        //console.log("displaying next");
+        //console.log("Current Question: " + currentQuestionIndex);
+        //console.log("Inside nextQuestion function.");
+        //console.log("Displaying quesion # " + currentQuestionIndex);
 
+        //update the question and all of the choices
+        currentQuestionIndex++;
+        questionTextEl.textContent = questionArray[currentQuestionIndex].text;
+        var choice1El = document.querySelector("#choice1");
+        choice1El.textContent = questionArray[currentQuestionIndex].choice1;
+        var choice2El = document.querySelector("#choice2");
+        choice2El.textContent = questionArray[currentQuestionIndex].choice2;
+        var choice3El = document.querySelector("#choice3");
+        choice3El.textContent = questionArray[currentQuestionIndex].choice3;
+        var choice4El = document.querySelector("#choice4");
+        choice4El.textContent = questionArray[currentQuestionIndex].choice4;
+        //currentQuestionIndex++;
+    }
+    else {
+        alert("Congratulations!");
+    }
     
-    //create a new question-wrapper for the next question
-    //var mainEl = window.document.querySelector("#main");
-    var questionWrapperEl = document.createElement("section");
-    questionWrapperEl.className = "question-wrapper";
-    questionWrapperEl.id = "question-wrapper";
-    mainEl.appendChild(questionWrapperEl);
-
-
-    //erase the old question
-    //var mainEl = window.document.querySelector("#main");
-    //mainEl.removeChild(questionWrapperEl);
-    //if (window.document.querySelector("question-text")) {
-    //    questionWrapperEl.removeChild(window.document.querySelector("#question-text"));
-   // }
-
-    var questionTextEl = document.createElement("h2");
-    questionTextEl.textContent = questionArray[next].text;
-    questionTextEl.id = "question-text";
-    questionWrapperEl.appendChild(questionTextEl);
-    var choiceOlEl = document.createElement("ol");
-    //create answer choices in the OL
-    var choice1El = document.createElement("li");
-    choice1El.textContent = questionArray[next].choice1;
-    choiceOlEl.appendChild(choice1El);
-
-    var choice2El = document.createElement("li");
-    choice2El.textContent = questionArray[next].choice2;
-    choiceOlEl.appendChild(choice2El);
-
-    var choice3El = document.createElement("li");
-    choice3El.textContent = questionArray[next].choice3;
-    choiceOlEl.appendChild(choice3El);
-
-    var choice4El = document.createElement("li");
-    choice4El.textContent = questionArray[next].choice4;
-    choiceOlEl.appendChild(choice4El);
-
-    //append the ol to the question wrapper
-    questionWrapperEl.appendChild(choiceOlEl);
-    next++;
-    console.log(next);
-
-    //questionWrapperEl.removeChild(window.document.querySelector("#question-text"));
-
+    //currentQuestionIndex++;
 
 }
 
+var checkAnswer = function(event) {
+    console.log ("In the checkAnswer function");
+    console.log ("Checking answer for question :" + currentQuestionIndex);
+    var targetEl = event.target;
+    var answer = targetEl.getAttribute("choice-number");
+    console.log ("You answered: " + answer);
+    //console.log (questionArray);
+    //console.log (questionArray[currentQuestionIndex]);
+    //console.log ("The correct answer is: " + questionArray[currentQuestionIndex].answer);
+    /*if ( answer === questionArray[currentQuestionIndex].answer) {
+        console.log("You are correct");
+    } 
+    else {
+        console.log("You are wrong");
+    }*/
+    nextQuestion();
+}
+
+
 //event listeners
-startBtnEl.addEventListener("click", startBtnHandler);
-mainEl.addEventListener("click", nextQuestion());
+//startBtnEl.addEventListener("click", startBtnHandler);
+startBtnEl.addEventListener("click", initializeQuiz);
+//mainEl.addEventListener("click", nextQuestion());
+//choice1El.addEventListener("click", nextQuestion);
+questionWrapperEl.addEventListener("click",nextQuestion);
