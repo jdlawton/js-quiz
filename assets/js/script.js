@@ -1,5 +1,5 @@
 //global variables
-var scoreTimer = 0; //the quiz's timer, remaining time is used as player score.
+var scoreTimer = 60; //the quiz's timer, remaining time is used as player score.
 var currentQuestionIndex = -1; //keeps track of what question the quiz is currently on, used to advance through the array.
 var numCorrect = 0; //tracks the number of correct answers
 //create an array of objects, each object represents a question, the multiple choices, and the answer
@@ -167,7 +167,7 @@ var initializeQuiz = function () {
     //choice4El.textContent = questionArray[currentQuestionIndex].choice4;
     choiceOlEl.appendChild(choice4El);
 
-    //nextQuestion();
+    scoreTimerCountdown();
 }
 
 //function to display the next question in the array
@@ -229,28 +229,21 @@ var nextQuestion = function() {
 
 }
 
-var checkAnswer = function(event) {
-    console.log ("In the checkAnswer function");
-    console.log ("Checking answer for question :" + currentQuestionIndex);
-    var targetEl = event.target;
-    var answer = targetEl.getAttribute("choice-number");
-    console.log ("You answered: " + answer);
-    //console.log (questionArray);
-    //console.log (questionArray[currentQuestionIndex]);
-    //console.log ("The correct answer is: " + questionArray[currentQuestionIndex].answer);
-    /*if ( answer === questionArray[currentQuestionIndex].answer) {
-        console.log("You are correct");
-    } 
-    else {
-        console.log("You are wrong");
-    }*/
-    nextQuestion();
+var scoreTimerCountdown = function() {
+
+    var timeInterval = setInterval(function() {
+        if (scoreTimer > 0) {
+            console.log (scoreTimer + " seconds left");
+            scoreTimer--;
+        }
+        else {
+            console.log ("Out of time");
+            clearInterval(timeInterval);
+        }
+    }, 1000);
 }
 
-
 //event listeners
-//startBtnEl.addEventListener("click", startBtnHandler);
 startBtnEl.addEventListener("click", initializeQuiz);
-//mainEl.addEventListener("click", nextQuestion());
-//choice1El.addEventListener("click", nextQuestion);
+//startBtnEl.addEventListener("click", scoreTimerCountdown);
 questionWrapperEl.addEventListener("click",nextQuestion);
