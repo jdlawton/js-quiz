@@ -2,6 +2,7 @@
 var scoreTimer = 60; //the quiz's timer, remaining time is used as player score.
 var currentQuestionIndex = -1; //keeps track of what question the quiz is currently on, used to advance through the array.
 var numCorrect = 0; //tracks the number of correct answers
+var timeInterval = 0;
 //create an array of objects, each object represents a question, the multiple choices, and the answer
 var questionArray = [
     {
@@ -192,7 +193,7 @@ var nextQuestion = function() {
         }
 
         if (currentQuestionIndex+1 === questionArray.length){
-            quizOver();
+            //quizOver();
         }
     }
     //console.log (questionArray);
@@ -227,7 +228,7 @@ var nextQuestion = function() {
         //currentQuestionIndex++;
     }
     else {
-        alert("Congratulations!");
+        //alert("Congratulations!");
     }
     
     //currentQuestionIndex++;
@@ -236,13 +237,21 @@ var nextQuestion = function() {
 
 var scoreTimerCountdown = function() {
 
-    var timeInterval = setInterval(function() {
+    timeInterval = setInterval(function() {
+        console.log(timeInterval);
         timerEl.textContent = "Time: " + scoreTimer;
+
+        //debugger;
         if (scoreTimer > 0) {
             scoreTimer--;
         }
-        else {
-            clearInterval(timeInterval);
+        else if (scoreTimer === 0) {
+            //clearInterval(timeInterval);
+            quizOver();
+        }
+        
+        if (currentQuestionIndex+1 === questionArray.length){
+            //clearInterval(timeInterval);
             quizOver();
         }
     }, 1000);
@@ -250,6 +259,8 @@ var scoreTimerCountdown = function() {
 
 var quizOver = function () {
     console.log ("Inside the quizOver function");
+    console.log(timeInterval);
+    clearInterval(timeInterval);
 }
 
 
