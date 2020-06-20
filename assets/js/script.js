@@ -101,7 +101,7 @@ highScoreLinkEl.innerHTML = "View High Scores";
 headerWrapperEl.appendChild(highScoreLinkEl);
 
 var timerEl = document.createElement("p");
-timerEl.innerHTML = "Time: " + scoreTimer;
+timerEl.textContent = "Time: " + scoreTimer;
 headerWrapperEl.appendChild(timerEl);
 
 
@@ -173,21 +173,26 @@ var initializeQuiz = function () {
 //function to display the next question in the array
 var nextQuestion = function() {
     //debugger;
-    console.log ("index = " + currentQuestionIndex);
+    //console.log ("index = " + currentQuestionIndex);
     //currentQuestionIndex++;
     
     var targetEl = event.target;
     var answer = targetEl.getAttribute("choice-number");
     if (answer){
-        console.log ("Checking Answer...");
-        console.log ("Checking answer for question :" + currentQuestionIndex);
-        console.log ("You answered: " + answer);
-        console.log ("Array answer is: " + questionArray[currentQuestionIndex].answer);
+        //console.log ("Checking Answer...");
+        //console.log ("Checking answer for question :" + currentQuestionIndex);
+        //console.log ("You answered: " + answer);
+        //console.log ("Array answer is: " + questionArray[currentQuestionIndex].answer);
         if (answer===questionArray[currentQuestionIndex].answer){
             console.log ("You are correct!");
         }
         else {
             console.log ("You are wrong");
+            scoreTimer = Math.max(0, scoreTimer-10);
+        }
+
+        if (currentQuestionIndex+1 === questionArray.length){
+            quizOver();
         }
     }
     //console.log (questionArray);
@@ -232,16 +237,21 @@ var nextQuestion = function() {
 var scoreTimerCountdown = function() {
 
     var timeInterval = setInterval(function() {
+        timerEl.textContent = "Time: " + scoreTimer;
         if (scoreTimer > 0) {
-            console.log (scoreTimer + " seconds left");
             scoreTimer--;
         }
         else {
-            console.log ("Out of time");
             clearInterval(timeInterval);
+            quizOver();
         }
     }, 1000);
 }
+
+var quizOver = function () {
+    console.log ("Inside the quizOver function");
+}
+
 
 //event listeners
 startBtnEl.addEventListener("click", initializeQuiz);
