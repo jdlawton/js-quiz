@@ -105,7 +105,7 @@ var questionWrapperEl = document.querySelector("#question-wrapper");
 
 //dynamically create the view high scores link and timer in the header section
 var highScoreLinkEl = document.createElement("a");
-highScoreLinkEl.href = "#";
+highScoreLinkEl.href = "./scores.html";
 highScoreLinkEl.innerHTML = "View High Scores";
 headerWrapperEl.appendChild(highScoreLinkEl);
 
@@ -317,8 +317,27 @@ var submitInitials = function (event) {
     event.preventDefault();
     console.log("submitting Initials");
     var initials = document.querySelector("#initials").value;
-    localStorage.setItem("initials", initials);
-    localStorage.setItem("score", scoreTimer);
+    var newScore = {initials: initials, score: scoreTimer};
+    console.log("New Score: " + newScore.initials + " " + newScore.score);
+    //localStorage.setItem("initials", initials);
+    //localStorage.setItem("score", scoreTimer);
+    var savedScores = localStorage.getItem("scores");
+    if (!savedScores){
+        console.log ("inside if");
+        savedScores = [{initials: "", score: ""}];
+        savedScores = JSON.stringify(savedScores);
+    }
+    savedScores = JSON.parse(savedScores);
+    savedScores.push(newScore);
+    console.log(savedScores);
+    localStorage.setItem("scores", JSON.stringify(savedScores));
+
+    
+    
+
+    //localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    window.location.href = "./scores.html";
 }
 
 //event listeners
