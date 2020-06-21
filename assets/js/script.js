@@ -1,6 +1,6 @@
 //global variables
 var scoreTimer = 60; //the quiz's timer, remaining time is used as player score.
-var currentQuestionIndex = -1; //keeps track of what question the quiz is currently on, used to advance through the array.
+var currentQuestionIndex = 0; //keeps track of what question the quiz is currently on, used to advance through the array.
 var numCorrect = 0; //tracks the number of correct answers
 var timeInterval = 0;
 //create an array of objects, each object represents a question, the multiple choices, and the answer
@@ -84,6 +84,14 @@ var questionArray = [
         choice3: "rem This is a comment",
         choice4: "//This is a comment",
         answer: "4"
+    },
+    {
+        text: "How do you write a comment in JavaScript?",
+        choice1: "'This is a comment",
+        choice2: "<!-- This is a comment -->",
+        choice3: "rem This is a comment",
+        choice4: "//This is a comment",
+        answer: "4"
     }
 ]
 
@@ -142,103 +150,104 @@ var initializeQuiz = function () {
     //console.log(currentQuestionIndex);
 
     var choiceOlEl = document.createElement("ol");
+    choiceOlEl.id = "choice-ol";
     questionWrapperEl.appendChild(choiceOlEl);
 
     var choice1El = document.createElement("li");
     choice1El.setAttribute("choice-number", "1");
     choice1El.id = "choice1";
-    //choice1El.textContent = questionArray[currentQuestionIndex].choice1;
+    choice1El.textContent = questionArray[currentQuestionIndex].choice1;
     choiceOlEl.appendChild(choice1El);
 
     var choice2El = document.createElement("li");
     choice2El.setAttribute("choice-number", "2");
     choice2El.id = "choice2";
-    //choice2El.textContent = questionArray[currentQuestionIndex].choice2;
+    choice2El.textContent = questionArray[currentQuestionIndex].choice2;
     choiceOlEl.appendChild(choice2El);
 
     var choice3El = document.createElement("li");
     choice3El.setAttribute("choice-number", "3");
     choice3El.id = "choice3";
-    //choice3El.textContent = questionArray[currentQuestionIndex].choice3;
+    choice3El.textContent = questionArray[currentQuestionIndex].choice3;
     choiceOlEl.appendChild(choice3El);
 
     var choice4El = document.createElement("li");
     choice4El.setAttribute("choice-number", "4");
     choice4El.id = "choice4";
-    //choice4El.textContent = questionArray[currentQuestionIndex].choice4;
+    choice4El.textContent = questionArray[currentQuestionIndex].choice4;
     choiceOlEl.appendChild(choice4El);
 
     scoreTimerCountdown();
 }
 
 //function to display the next question in the array
-var nextQuestion = function() {
+var nextQuestion = function(event) {
     //debugger;
     //console.log ("index = " + currentQuestionIndex);
     //currentQuestionIndex++;
     
     var targetEl = event.target;
-    var answer = targetEl.getAttribute("choice-number");
-    if (answer){
-        //console.log ("Checking Answer...");
-        //console.log ("Checking answer for question :" + currentQuestionIndex);
-        //console.log ("You answered: " + answer);
-        //console.log ("Array answer is: " + questionArray[currentQuestionIndex].answer);
-        if (answer===questionArray[currentQuestionIndex].answer){
-            console.log ("You are correct!");
-        }
-        else {
-            console.log ("You are wrong");
-            scoreTimer = Math.max(0, scoreTimer-10);
-        }
-
-        if (currentQuestionIndex+1 === questionArray.length){
-            //quizOver();
-        }
-    }
-    //console.log (questionArray);
-    //console.log (questionArray[currentQuestionIndex]);
-    //console.log ("The correct answer is: " + questionArray[currentQuestionIndex].answer);
-    /*if ( answer === questionArray[currentQuestionIndex].answer) {
-        console.log("You are correct");
-    } 
-    else {
-        console.log("You are wrong");
-    }*/
-
-    //checks if we have reached the end of the quiz. If not, display the next question.
-    if (currentQuestionIndex+1 < questionArray.length){
-        //debugger;
-        //console.log("displaying next");
-        //console.log("Current Question: " + currentQuestionIndex);
-        //console.log("Inside nextQuestion function.");
-        //console.log("Displaying quesion # " + currentQuestionIndex);
-
-        //update the question and all of the choices
-        currentQuestionIndex++;
-        questionTextEl.textContent = questionArray[currentQuestionIndex].text;
-        var choice1El = document.querySelector("#choice1");
-        choice1El.textContent = questionArray[currentQuestionIndex].choice1;
-        var choice2El = document.querySelector("#choice2");
-        choice2El.textContent = questionArray[currentQuestionIndex].choice2;
-        var choice3El = document.querySelector("#choice3");
-        choice3El.textContent = questionArray[currentQuestionIndex].choice3;
-        var choice4El = document.querySelector("#choice4");
-        choice4El.textContent = questionArray[currentQuestionIndex].choice4;
-        //currentQuestionIndex++;
-    }
-    else {
-        //alert("Congratulations!");
-    }
+    console.log ("TargetEl: " + targetEl);
     
-    //currentQuestionIndex++;
+    //if (targetEl.id === "choice1" || targetEl.id === "choice2" || targetEl.id === "choice3" || targetEl.id === "choice4"){
+    //console.log(targetEl.id);
+        var answer = targetEl.getAttribute("choice-number");
+        console.log("Answer: " + answer);
+        if (answer){
+            //console.log ("Checking Answer...");
+            //console.log ("Checking answer for question :" + currentQuestionIndex);
+            //console.log ("You answered: " + answer);
+            //console.log ("Array answer is: " + questionArray[currentQuestionIndex].answer);
+            if (answer===questionArray[currentQuestionIndex].answer){
+                //console.log ("You are correct!");
+            }
+            else {
+                //console.log ("You are wrong");
+                scoreTimer = Math.max(0, scoreTimer-10);
+            }
+
+            if (currentQuestionIndex+1 === questionArray.length){
+                //quizOver();
+            }
+        }
+    
+        //checks if we have reached the end of the quiz. If not, display the next question.
+        if (currentQuestionIndex+1 < questionArray.length && (answer)){
+        //update the question and all of the choices
+            currentQuestionIndex++;
+            questionTextEl.textContent = questionArray[currentQuestionIndex].text;
+            var choice1El = document.querySelector("#choice1");
+            choice1El.textContent = questionArray[currentQuestionIndex].choice1;
+            var choice2El = document.querySelector("#choice2");
+            choice2El.textContent = questionArray[currentQuestionIndex].choice2;
+            var choice3El = document.querySelector("#choice3");
+            choice3El.textContent = questionArray[currentQuestionIndex].choice3;
+            var choice4El = document.querySelector("#choice4");
+            choice4El.textContent = questionArray[currentQuestionIndex].choice4;
+        }
+    
+    
+    
+    
+    
+    
+    
+    //}
+
+    if (targetEl.id === "initials-button") {
+        submitInitials(event);
+    }
+
+    
+
+ 
 
 }
 
 var scoreTimerCountdown = function() {
 
     timeInterval = setInterval(function() {
-        console.log(timeInterval);
+        //console.log(timeInterval);
         timerEl.textContent = "Time: " + scoreTimer;
 
         //debugger;
@@ -258,13 +267,62 @@ var scoreTimerCountdown = function() {
 }
 
 var quizOver = function () {
-    console.log ("Inside the quizOver function");
-    console.log(timeInterval);
+    //console.log ("Inside the quizOver function");
+    //console.log(timeInterval);
     clearInterval(timeInterval);
+
+    var choiceOlEl = document.querySelector("#choice-ol");
+    questionWrapperEl.removeChild(choiceOlEl);
+    timerEl.textContent = "Time: " + scoreTimer;
+    questionTextEl.innerHTML = "All Done! <br> Your Final Score is: " + scoreTimer;
+
+    var formWrapperEl = document.createElement("div");
+    formWrapperEl.id = "initial-form-wrapper";
+    questionWrapperEl.appendChild(formWrapperEl);
+    
+    var initialFormEl = document.createElement("form");
+    formWrapperEl.appendChild(initialFormEl);
+
+    var initialLabelEl = document.createElement("label");
+    initialLabelEl.form = "initials";
+    initialLabelEl.textContent = "Enter Initials";
+    initialFormEl.appendChild(initialLabelEl);
+
+    var initialTextEl = document.createElement("input");
+    initialTextEl.type = "text";
+    initialTextEl.id = "initials";
+    initialTextEl.name = "initials";
+    initialFormEl.appendChild(initialTextEl);
+
+    var initialBtnEl = document.createElement("buton");
+    initialBtnEl.className = "btn";
+    initialBtnEl.id = "initials-button";
+    initialBtnEl.textContent = "Submit";
+    initialBtnEl.setAttribute("button-id", "initials-submit");
+    initialFormEl.appendChild(initialBtnEl);
+    
+
+    //<label for="fname">First name:</label><br>
+    //<input type="text" id="fname" name="fname"><br></br>
+
+ 
+
+
+    //questionWrapperEl.removeChild(instructionsEl);
+    
 }
 
+var submitInitials = function (event) {
+    //debugger;
+    event.preventDefault();
+    console.log("submitting Initials");
+    var initials = document.querySelector("#initials").value;
+    localStorage.setItem("initials", initials);
+    localStorage.setItem("score", scoreTimer);
+}
 
 //event listeners
 startBtnEl.addEventListener("click", initializeQuiz);
 //startBtnEl.addEventListener("click", scoreTimerCountdown);
 questionWrapperEl.addEventListener("click",nextQuestion);
+questionWrapperEl.addEventListener("submit",submitInitials);
