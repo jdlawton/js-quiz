@@ -158,24 +158,28 @@ var initializeQuiz = function () {
     var choice1El = document.createElement("li");
     choice1El.setAttribute("choice-number", "1");
     choice1El.id = "choice1";
+    choice1El.className = "choice";
     choice1El.textContent = questionArray[currentQuestionIndex].choice1;
     choiceOlEl.appendChild(choice1El);
 
     var choice2El = document.createElement("li");
     choice2El.setAttribute("choice-number", "2");
     choice2El.id = "choice2";
+    choice2El.className = "choice";
     choice2El.textContent = questionArray[currentQuestionIndex].choice2;
     choiceOlEl.appendChild(choice2El);
 
     var choice3El = document.createElement("li");
     choice3El.setAttribute("choice-number", "3");
     choice3El.id = "choice3";
+    choice3El.className = "choice";
     choice3El.textContent = questionArray[currentQuestionIndex].choice3;
     choiceOlEl.appendChild(choice3El);
 
     var choice4El = document.createElement("li");
     choice4El.setAttribute("choice-number", "4");
     choice4El.id = "choice4";
+    choice4El.className = "choice";
     choice4El.textContent = questionArray[currentQuestionIndex].choice4;
     choiceOlEl.appendChild(choice4El);
 
@@ -277,28 +281,37 @@ var quizOver = function () {
     //console.log(timeInterval);
     clearInterval(timeInterval);
 
+    var feedbackMsgEl = document.querySelector("#feedback-message");
+        feedbackMsgEl.textContent = "";
+
     var choiceOlEl = document.querySelector("#choice-ol");
     questionWrapperEl.removeChild(choiceOlEl);
     timerEl.textContent = "Time: " + scoreTimer;
     questionTextEl.innerHTML = "All Done! <br> Your Final Score is: " + scoreTimer;
 
-    var formWrapperEl = document.createElement("div");
-    formWrapperEl.id = "initial-form-wrapper";
-    questionWrapperEl.appendChild(formWrapperEl);
+    /*var formWrapperEl = document.createElement("div");
+    formWrapperEl.id = "initials-form-wrapper";
+    questionWrapperEl.appendChild(formWrapperEl);*/
     
     var initialFormEl = document.createElement("form");
-    formWrapperEl.appendChild(initialFormEl);
+    initialFormEl.id = "initials-form";
+    questionWrapperEl.appendChild(initialFormEl);
+
+    var inputWrapperEl = document.createElement("div");
+    inputWrapperEl.id = "input-wrapper";
+    initialFormEl.appendChild(inputWrapperEl);
 
     var initialLabelEl = document.createElement("label");
     initialLabelEl.form = "initials";
+    initialLabelEl.id = "initials-label";
     initialLabelEl.textContent = "Enter Initials";
-    initialFormEl.appendChild(initialLabelEl);
+    inputWrapperEl.appendChild(initialLabelEl);
 
     var initialTextEl = document.createElement("input");
     initialTextEl.type = "text";
     initialTextEl.id = "initials";
     initialTextEl.name = "initials";
-    initialFormEl.appendChild(initialTextEl);
+    inputWrapperEl.appendChild(initialTextEl);
 
     var initialBtnEl = document.createElement("buton");
     initialBtnEl.className = "btn";
