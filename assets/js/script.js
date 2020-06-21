@@ -1,8 +1,12 @@
 //global variables
 var scoreTimer = 60; //the quiz's timer, remaining time is used as player score.
 var currentQuestionIndex = 0; //keeps track of what question the quiz is currently on, used to advance through the array.
-var numCorrect = 0; //tracks the number of correct answers
-var timeInterval = 0;
+var timeInterval = 0; //used for the countdown timer. it is global because setInterval and clearInterval are in different functions.
+//elements retrieved from the HTML document, used for dynamically managing the web page contents.
+var headerWrapperEl = document.querySelector("#header-wrapper");
+var mainEl = document.querySelector("#main");
+var questionWrapperEl = document.querySelector("#question-wrapper");
+
 //create an array of objects, each object represents a question, the multiple choices, and the answer
 var questionArray = [
     {
@@ -86,6 +90,8 @@ var questionArray = [
         answer: "4"
     },
     {
+        //duplicate last question to correct for the quiz advancing past the final question due to the way the nextQuestion function advances.
+        //there is likely a better way to structure the logic in that function so this is not necessary
         text: "How do you write a comment in JavaScript?",
         choice1: "'This is a comment",
         choice2: "<!-- This is a comment -->",
@@ -93,15 +99,7 @@ var questionArray = [
         choice4: "//This is a comment",
         answer: "4"
     }
-]
-
-//elements retrieved from the HTML document, used for dynamically managing the web page contents.
-var headerWrapperEl = document.querySelector("#header-wrapper");
-var mainEl = document.querySelector("#main");
-var questionWrapperEl = document.querySelector("#question-wrapper");
-
-/////////////////////////////END GLOBAL VARIABLES///////////////////////////////////////
-
+];
 
 //dynamically create the view high scores link and timer in the header section
 var highScoreLinkEl = document.createElement("a");
@@ -112,9 +110,6 @@ headerWrapperEl.appendChild(highScoreLinkEl);
 var timerEl = document.createElement("p");
 timerEl.textContent = "Time: " + scoreTimer;
 headerWrapperEl.appendChild(timerEl);
-
-
-//dynamically create the start screen
 
 //create the quiz title. The element the title is written to in the HTML will also server as where the questions will go
 var questionTextEl = document.createElement("h2");
@@ -140,21 +135,21 @@ startBtnWrapperEl.appendChild(startBtnEl);
 questionWrapperEl.appendChild(startBtnWrapperEl);
 
 
-//this function prepares the quiz for running by removing the unneeded start button and instructions, then calls
-//the nextQuestion function to display the first question.
+//this function prepares the quiz for running by removing the unneeded start button and instructions and 
+//loading the first question
 var initializeQuiz = function () {
     questionWrapperEl.removeChild(instructionsEl);
     questionWrapperEl.removeChild(startBtnWrapperEl);
 
-    //console.log("Inside startQuiz function.");
-    //console.log(currentQuestionIndex);
-
+    //replaces the JavaScript Quiz title with the first question
     questionTextEl.textContent = questionArray[currentQuestionIndex].text;
 
+    //create the ordered list that will hold the four answer choices
     var choiceOlEl = document.createElement("ol");
     choiceOlEl.id = "choice-ol";
     questionWrapperEl.appendChild(choiceOlEl);
 
+    //create each of the answer choices, pulling the values from the array of questions
     var choice1El = document.createElement("li");
     choice1El.setAttribute("choice-number", "1");
     choice1El.id = "choice1";
@@ -183,6 +178,8 @@ var initializeQuiz = function () {
     choice4El.textContent = questionArray[currentQuestionIndex].choice4;
     choiceOlEl.appendChild(choice4El);
 
+    //create the feedback elements that will display if an answer is correct or wrong after it is selected
+    //when the elements are initially created, there is no text given to them, so they remain invisible until text is added later
     var feedbackWrapperEl = document.createElement("div");
     feedbackWrapperEl.id = "feedback-wrapper";
     questionWrapperEl.appendChild(feedbackWrapperEl);
@@ -192,26 +189,21 @@ var initializeQuiz = function () {
     feedbackMsgEl.id = "feedback-message";
     feedbackWrapperEl.appendChild(feedbackMsgEl);
 
+    //call the function that starts the countdown timer
     scoreTimerCountdown();
 }
 
-//function to display the next question in the array
+//this function is called when an answer choice is clicked on. it determines which choice was clicked on, displays whether or not
+//the selected answer was correct or wrong, deducts the time penalty if wrong, replaces the question and choices with the next question,
+//and if the quiz is over it will determine if the submit button is clicked when the player enters their initials.
 var nextQuestion = function(event) {
-    //debugger;
-    //console.log ("index = " + currentQuestionIndex);
-    //currentQuestionIndex++;
     
     var targetEl = event.target;
-    //console.log ("TargetEl: " + targetEl);
-    
     var answer = targetEl.getAttribute("choice-number");
-    //console.log("Answer: " + answer);
+    
+    //only run the inside code if answer is not null, i.e. if what was clicked on was one of the answer choices
     if (answer){
-        
-        //console.log ("Checking Answer...");
-        //console.log ("Checking answer for question :" + currentQuestionIndex);
-        //console.log ("You answered: " + answer);
-        //console.log ("Array answer is: " + questionArray[currentQuestionIndex].answer);
+        //get the element that will display correct or wrong once the answer is checked
         var feedbackMsgEl = document.querySelector("#feedback-message");
         if (answer===questionArray[currentQuestionIndex].answer){
             //console.log ("You are correct!");
@@ -222,13 +214,12 @@ var nextQuestion = function(event) {
             scoreTimer = Math.max(0, scoreTimer-10);
             feedbackMsgEl.textContent = "Wrong";
         }
-
-        if (currentQuestionIndex+1 === questionArray.length){
-            //quizOver();
-        }
     }
 
-    //checks if we have reached the end of the quiz. If not, display the next question.
+    //checks if we have reached the end of the quiz and that we have a valid answer
+    //i needed to add the +1 to account for the array index starting at 0
+    //need to make sure answer is not null so the question won't advance if there is no 
+    //valid answer from the previous question, i.e. on tbe first time this if statement is encountered.
     if (currentQuestionIndex+1 < questionArray.length && (answer)){
     //update the question and all of the choices
         currentQuestionIndex++;
@@ -243,56 +234,53 @@ var nextQuestion = function(event) {
         choice4El.textContent = questionArray[currentQuestionIndex].choice4;
     }
     
-
+    //if the event passed to this function was due to the Submit button being clicked when the player submits
+    //initials, call the submitInitials function and pass on the event to that function. I initially tried to
+    //capture the click with the submit event handler below, but it would only capture on the enter key in the text
+    //field. I suspect this is because of the alreayd exiting event listener for click on the questionWrapperEl
     if (targetEl.id === "initials-button") {
         submitInitials(event);
     }
-
-    
-
- 
-
 }
 
+//this function sets the countdown timer. timeInterval is declared as a global because the interval is cleared in the quizOver function.
+//i found that clearing the interval in this function could result in istances where the final question was answered and then the quiz wouldn't
+//end for another second which could result in a different number being displayed in the timer and in the final score.
 var scoreTimerCountdown = function() {
 
     timeInterval = setInterval(function() {
-        //console.log(timeInterval);
         timerEl.textContent = "Time: " + scoreTimer;
 
-        //debugger;
         if (scoreTimer > 0) {
             scoreTimer--;
         }
         else if (scoreTimer === 0) {
-            //clearInterval(timeInterval);
             quizOver();
         }
         
+        //the other condition for ending the quiz is if all of the questions have been answered
         if (currentQuestionIndex+1 === questionArray.length){
-            //clearInterval(timeInterval);
             quizOver();
         }
     }, 1000);
 }
 
+//this function is called once the quiz is over. it stops the timer from running, removes the answer choices, displays the final score,
+//displays the form proompting the user to enter their initials
 var quizOver = function () {
-    //console.log ("Inside the quizOver function");
-    //console.log(timeInterval);
+    
     clearInterval(timeInterval);
 
+    //clears away the unnecessary information to prepare for the initials form being displayed
     var feedbackMsgEl = document.querySelector("#feedback-message");
-        feedbackMsgEl.textContent = "";
+    feedbackMsgEl.textContent = "";
 
     var choiceOlEl = document.querySelector("#choice-ol");
     questionWrapperEl.removeChild(choiceOlEl);
     timerEl.textContent = "Time: " + scoreTimer;
     questionTextEl.innerHTML = "All Done! <br> Your Final Score is: " + scoreTimer;
 
-    /*var formWrapperEl = document.createElement("div");
-    formWrapperEl.id = "initials-form-wrapper";
-    questionWrapperEl.appendChild(formWrapperEl);*/
-    
+    //create the form and the submit button
     var initialFormEl = document.createElement("form");
     initialFormEl.id = "initials-form";
     questionWrapperEl.appendChild(initialFormEl);
@@ -318,67 +306,46 @@ var quizOver = function () {
     initialBtnEl.id = "initials-button";
     initialBtnEl.textContent = "Submit";
     initialBtnEl.setAttribute("button-id", "initials-submit");
-    initialFormEl.appendChild(initialBtnEl);
-    
-
-    //<label for="fname">First name:</label><br>
-    //<input type="text" id="fname" name="fname"><br></br>
-
- 
-
-
-    //questionWrapperEl.removeChild(instructionsEl);
-    
+    initialFormEl.appendChild(initialBtnEl);   
 }
 
+//this function is called by the event listeners when either the submit buton is clicked, or when the initals are entered and the enter/return key is pressed
 var submitInitials = function (event) {
-    //debugger;
     event.preventDefault();
-    console.log("submitting Initials");
     var initials = document.querySelector("#initials").value;
     var newScore = {initials: initials, score: scoreTimer};
-    console.log("New Score: " + newScore.initials + " " + newScore.score);
-    //localStorage.setItem("initials", initials);
-    //localStorage.setItem("score", scoreTimer);
+    
     var savedScores = localStorage.getItem("scores");
+    //if no scores exist, i create an empty, dummy score so the JSON.parse function can run even if no scores have been previously saved
     if (!savedScores){
-        console.log ("inside if");
         savedScores = [{initials: "", score: ""}];
         savedScores = JSON.stringify(savedScores);
     }
+    //add the new initials/score to the end of the savedScores array and then save them back to localStorage
+    //actually sorting the scores is handled by the scores.js script
     savedScores = JSON.parse(savedScores);
     savedScores.push(newScore);
-    console.log(savedScores);
     localStorage.setItem("scores", JSON.stringify(savedScores));
 
-    
-    
-
-    //localStorage.setItem("tasks", JSON.stringify(tasks));
-
+    //direct the user to the high scores page
     window.location.href = "./scores.html";
 }
 
+//this function clears the correct or wrong feedback that is displayed when the user selects an answer
+//this function is called when the cursor moves over one of the next question's answer choices
 var clearFeedback = function (event) {
     var targetEl = event.target;
-    //console.dir(targetEl);
-    //console.log ("TargetEl: " + targetEl);
-    
     var answer = targetEl.getAttribute("choice-number");
-    //console.log ("Answer Attribute is: " + answer);
-   // console.log("Inside clearFeedback");
-    //console.log
+    //if answer exists, i.e. if there is a correct or wrong feedback message currently displayed, replace the text with "" to effectively
+    //remove the string
     if (answer) {
-        //console.log ("Inside answer" + answer);
         var feedbackMsgEl = document.querySelector("#feedback-message");
         feedbackMsgEl.textContent = "";
-
     }
 }
 
 //event listeners
 startBtnEl.addEventListener("click", initializeQuiz);
-//startBtnEl.addEventListener("click", scoreTimerCountdown);
 questionWrapperEl.addEventListener("click",nextQuestion);
 questionWrapperEl.addEventListener("submit",submitInitials);
 questionWrapperEl.addEventListener("mouseover", clearFeedback);
